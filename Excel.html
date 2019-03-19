@@ -1,0 +1,85 @@
+<meta charset="utf-8"/>
+<html>
+<head><title>Excel to HTML</title></head>
+<body>
+Loan:         <br/><input type="text" id="loan"><br/>
+CPF:          <br/><input type="text" id="cpf"><br/>
+Cash:         <br/><input type="text" id="cash"><br/>
+Monthly CPF:  <br/><input type="text" id="monthlycpf"><br/>
+IWAA:         <br/><input type="text" id="iwaa"><br/>
+Price:        <br/><input type="text" id="price"><br/>
+Stamp (%):    <br/><input type="text" id="stmp" value="4"><br/>
+<p>_</p>
+Cash (OTP)    <br/><input type="text" id="otp"><br/>
+Downpayment   <br/><input type="text" id="down"><br/>
+- CPF         <br/><input type="text" id="dcpf"><br/>
+- Cash        <br/><input type="text" id="dcash"><br/>
+Stamp Duty    <br/><input type="text" id="stamp"><br/>
+Legal Fee     <br/><input type="text" id="legal"><br/>
+<p>_</p>
+Loan (75%)    <br/><input type="text" id="loan"><br/>
+Tenure        <br/><input type="text" id="tenure" value="21"><br/>
+<br/>
+<b>Monthly</b><br/>
+2.0%          <br/><input type="text" id="two">     - $<span class="mcpf"></span> = <input type="text" id="cashtwo">      cash.<br/>
+2.5%          <br/><input type="text" id="twofive"> - $<span class="mcpf"></span> = <input type="text" id="cashtwofive">  cash.<br/>
+3.0%          <br/><input type="text" id="three">   - $<span class="mcpf"></span> = <input type="text" id="cashthree">    cash.<br/>
+<p>_</p>
+</body>
+<script>
+  function PMT(mth, ten, PV)
+  {
+    var R     = mth/12;
+    var P     = ten*12*-1;
+    var temp  = Math.pow((1+R),P);
+    return ((PV*R)/(1-temp));
+  }
+
+  document.getElementById("loan").onchange        = function() { Update() };
+  document.getElementById("cpf").onchange         = function() { Update() };
+  document.getElementById("cash").onchange        = function() { Update() };
+  document.getElementById("monthlycpf").onchange  = function() { Update() };
+  document.getElementById("iwaa").onchange        = function() { Update() };
+  document.getElementById("price").onchange       = function() { Update() };
+
+  function Update()
+  {
+    var otp   = 0.05;
+    var down  = 0.2;
+    var cpf   = 0.2;
+    var price = parseInt(document.getElementById("price").value);
+    if (price > 1000000)
+      document.getElementById("stmp").value = "4";
+    else
+      document.getElementById("stmp").value = "3";
+    var percent = parseFloat(document.getElementById("stmp").value)/100;
+
+    var stamp = price*percent - 15400;
+    if (percent == 3)
+      stamp = price*percent - 5400;
+
+    var monthlycpf = parseInt(document.getElementById("monthlycpf").value);
+    var mcpf = document.getElementsByClassName("mcpf");
+    for (var m in Array.prototype.slice.call(mcpf))
+      mcpf[m].innerHTML = monthlycpf.toString();
+
+    var loan    = 0.75*price;
+    var tenure  = parseInt(document.getElementById("tenure").value);
+
+    document.getElementById("otp").value    = (price*otp).toString();
+    document.getElementById("down").value   = (price*down).toString();
+    document.getElementById("dcpf").value   = (price*cpf).toString();
+    document.getElementById("stamp").value  = (stamp).toString();
+    document.getElementById("loan").value   = (loan).toString();
+
+    var PV = loan - 0.15*price;
+    var itr20 = 0.02, itr25 = 0.025, itr30 = 0.03;
+
+    document.getElementById("two").value          = (PMT(itr20, tenure, PV)).toFixed(2);
+    document.getElementById("twofive").value      = (PMT(itr25, tenure, PV)).toFixed(2);
+    document.getElementById("three").value        = (PMT(itr30, tenure, PV)).toFixed(2);
+    document.getElementById("cashtwo").value      = (parseFloat(document.getElementById("two").value)-monthlycpf).toFixed(2);
+    document.getElementById("cashtwofive").value  = (parseFloat(document.getElementById("twofive").value)-monthlycpf).toFixed(2);
+    document.getElementById("cashthree").value    = (parseFloat(document.getElementById("three").value)-monthlycpf).toFixed(2);
+  }
+</script>
